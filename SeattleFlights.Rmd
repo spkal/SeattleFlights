@@ -60,10 +60,12 @@ FlightsFromSeattle <- FlightsFromSeattle %>%
   mutate(fracDepHour = DepTime %/% 100 + (DepTime %% 100) / 60)
 ```
 
+## Histograms
+
 Histogram of departure time:
 ```{r histdeparture}
-b <- seq(0, 24, by=1/6)
-hist(FlightsFromSeattle$fracDepHour, breaks=b, xlab="Hour",
+brk24by10min <- seq(0, 24, by=1/6)
+hist(FlightsFromSeattle$fracDepHour, breaks=brk24by10min, xlab="Hour",
   main="Flight Departure Time at SeaTac in Ten Minute Intervals",
   sub="Flights in 1987 through 2016",
   axes=FALSE)
@@ -74,12 +76,59 @@ axis(side=2)
 
 Histogram of arrival time:
 ```{r histarrival}
-b <- seq(0, 24, by=1/6)
-hist(FlightsToSeattle$fracArrHour, breaks=b, xlab="Hour",
+hist(FlightsToSeattle$fracArrHour, breaks=brk24by10min, xlab="Hour",
   main="Flight Arrival Time at SeaTac in Ten Minute Intervals",
   sub="Flights in 1987 through 2016",
   axes=FALSE)
 abline(v = seq_len(23), lty=2, col="red", lwd=0.5)
 axis(side=1, at=seq(0, 24, by=2))
 axis(side=2)
+```
+
+## Histograms with ggplot
+
+```{r ggplot2, echo=FALSE}
+library("ggplot2")
+```
+
+```{r gghistdeparturei, fig.width=8}
+brk24by10min <- seq(0, 24, by=1/6)
+FlightsFromSeattle %>%
+  ggplot(aes(x=fracDepHour)) +
+    geom_histogram(breaks=brk24by10min, alpha=0.6) +
+    geom_vline(xintercept=1:23, col='red', size=0.15, linetype=2, alpha=0.3) +
+    xlab("Hour") +
+    ggtitle("Flight Departure Time at SeaTac in Ten Minute Intervals\nFlights in 1987 through 2016") +
+    theme_classic()
+```
+
+```{r gghistdeparturebyyeari, fig.width=8}
+FlightsFromSeattle %>%
+  filter(Year > 1987) %>%
+  ggplot(aes(x=fracDepHour)) +
+    geom_histogram(breaks=brk24by10min, alpha=0.6) +
+    facet_wrap(~ Year) +
+    xlab("Hour") +
+    ggtitle("Flight Departure Time at SeaTac in Ten Minute Intervals") +
+    theme_classic()
+```
+
+```{r gghistarrivali, fig.width=8}
+FlightsToSeattle %>% ggplot(aes(x=fracArrHour)) +
+  geom_histogram(breaks=brk24by10min, alpha=0.6) +
+  geom_vline(xintercept=1:23, col='red', size=0.15, linetype=2, alpha=0.3) +
+  xlab("Hour") +
+  ggtitle("Flight Departure Time at SeaTac in Ten Minute Intervals\nFlights in 1987 through 2016") +
+  theme_classic()
+```
+
+```{r gghistarrivalbyyear, fig.width=8}
+FlightsToSeattle %>%
+  filter(Year > 1987) %>%
+  ggplot(aes(x=fracArrHour)) +
+    geom_histogram(breaks=brk24by10min, alpha=0.6) +
+    facet_wrap(~ Year) +
+    xlab("Hour") +
+    ggtitle("Flight Arrival Time at SeaTac in Ten Minute Intervals") +
+    theme_classic()
 ```
