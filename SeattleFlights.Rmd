@@ -1,7 +1,7 @@
 ---
 title: "Seattle Flights"
 author: "Stephen Kaluzny"
-date: "March 26, 2017"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
 ---
 
@@ -10,15 +10,20 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 ## Data
 
-The data are from the 2009 ASA Data Expo (http://stat-computing.org/dataexpo/2009/).
-The data consists of flight arrival and departure details for all commercial flights
-within the USA,
-from October 1987 to April 2008.
-Flights to and from Seattle (SeaTac airport, airport code SEA) were extracted for each year and stored in ```data/sea.csv```.
+The original data are from the 2009 ASA Data Expo (http://stat-computing.org/dataexpo/2009/).
+The data consists of flight arrival and departure details
+for all commercial flights within the USA,
+from October 1987 to October 2008.
+Flight data for November 2008 through December 2016 were downloaded from
+The Department of Transportation's (DOT)
+Bureau of Transportation Statistics (BTS) site
+(https://www.transtats.bts.gov/OT_Delay/OT_DelayCause1.asp).
+
+Flights to and from Seattle (SeaTac airport, airport code SEA) were extracted for each year and stored in ```data/SEA.csv```.
 To save reading time, the extracted to and from data were then stored in R objects.
 
 ```{r data, eval=FALSE}
-sea <- readr::read_csv("data/SEA.csv")
+sea <- readr::read_csv("data/SEA.csv", col_types=list())
 indxDest <- which(sea[["Dest"]] == "SEA")
 FlightsToSeattle <- sea[indxDest, ]
 indxOrig <- which(sea[["Origin"]] == "SEA")
@@ -34,7 +39,7 @@ FlightsFromSeattle <- readRDS("FlightsFromSeattle.rds")
 
 Only flights with nonmissing ```ArrTime``` or ```DepTime``` were analyzed
 ```{r dataclean}
-library("dplyr")
+suppressPackageStartupMessages(library("dplyr"))
 FlightsToSeattle <- FlightsToSeattle %>%
   filter(!is.na(ArrTime))
 FlightsFromSeattle <- FlightsFromSeattle %>%
@@ -60,7 +65,7 @@ Histogram of departure time:
 b <- seq(0, 24, by=1/6)
 hist(FlightsFromSeattle$fracDepHour, breaks=b, xlab="Hour",
   main="Flight Departure Time at SeaTac in Ten Minute Intervals",
-  sub="Flights in 1987 through 2008",
+  sub="Flights in 1987 through 2016",
   axes=FALSE)
 abline(v = seq_len(23), lty=2, col="red", lwd=0.5)
 axis(side=1, at=seq(0, 24, by=2))
@@ -72,7 +77,7 @@ Histogram of arrival time:
 b <- seq(0, 24, by=1/6)
 hist(FlightsToSeattle$fracArrHour, breaks=b, xlab="Hour",
   main="Flight Arrival Time at SeaTac in Ten Minute Intervals",
-  sub="Flights in 1987 through 2008",
+  sub="Flights in 1987 through 2016",
   axes=FALSE)
 abline(v = seq_len(23), lty=2, col="red", lwd=0.5)
 axis(side=1, at=seq(0, 24, by=2))
